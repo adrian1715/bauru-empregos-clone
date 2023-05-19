@@ -18,7 +18,7 @@ if ($lastDir == 'cadastrar-vaga.html') {
     $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
     $contato = filter_input(INPUT_POST, 'contato', FILTER_SANITIZE_STRING);
 
-    $obj->add('vagas_pendentes', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
+    $novaVaga = $obj->add('vagas_pendentes', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
 
     session_start();
     $_SESSION['message'] = "<div class='alert alert-success'>Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te retornaremos por e-mail assim que ela for aprovada e publicada.</div>";
@@ -37,7 +37,7 @@ if ($lastDir == 'admin/?vagas=pendentes') {
     $estado = $vagaPendente['estado'];
     $contato = $vagaPendente['contato'];
 
-    $obj->add('vagas', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
+    $novaVaga = $obj->add('vagas', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
     $obj->delete('vagas_pendentes', $id);
 
     session_start();
