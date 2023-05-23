@@ -14,10 +14,29 @@ if (isset($_GET['vagas'])) {
         $tabela = 'vagas_pendentes';
     }
 
-    $stmt = $obj->pdo->query("SELECT id, cargo, descricao, empresa, contato, cidade, date_format(data, '%d/%m/%Y') as data FROM $tabela ORDER BY data DESC, id DESC");
+    $resultsPerPage = 5;
+
+    if (!isset($_GET['page'])) {
+        $page = 1;
+    } else {
+        $page = $_GET['page'];
+    }
+
+    $start = ($page - 1) * $resultsPerPage;
+
+    // query total
+    $total = $obj->showAll($tabela);
+    $totalResults = count($total);
+
+    // query da pagina
+    $stmt = $obj->pdo->query("SELECT id, cargo, descricao, empresa, contato, cidade, date_format(data, '%d/%m/%Y') as data FROM $tabela ORDER BY data DESC, id DESC LIMIT $start, $resultsPerPage");
     $stmt->execute();
 
     $vagas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $totalPages = ceil($totalResults / $resultsPerPage);
+    $nextPage = $page + 1;
+    $previousPage = $page - 1;
 }
 
 session_start();
@@ -52,6 +71,7 @@ session_start();
         <?php if (isset($_GET['vagas'])) :
             if ($vagas) { ?>
                 <div id="vagas">
+                    <!-- exibindo as vagas -->
                     <h2 class="fs-3">Todas as vagas <?php echo $vagasValue ?> no Bauru Empregos</h2>
                     <p>Clique no título para visualizar os detalhes.</p>
                     <?php $i = 0;
@@ -68,6 +88,7 @@ session_start();
                             <span class="float-end"><?php echo $vaga['cidade'] ?></span>
                         </li>
 
+                        <!-- botões de editar e excluir -->
                         <?php if ($vagasValue == 'cadastradas') : ?>
                             <form action="?edit-id=<?php echo $vaga['id'] ?>" method="POST" class="d-inline-block">
                                 <button class="btn btn-primary ms-2 py-0 px-1" name="id" value="<?php echo $vaga['id'] ?>">
@@ -97,6 +118,7 @@ session_start();
             <?php } ?>
         <?php endif ?>
 
+        <!-- edit form interface -->
         <?php if (isset($_GET['edit-id'])) :
             $id = $_GET['edit-id'];
             $vaga = $obj->findById('vagas', $id); ?>
@@ -157,7 +179,33 @@ session_start();
             </form>
             <a href="?vagas=cadastradas"><button class="btn btn-dark mt-3">Voltar</button></a>
         <?php endif ?>
-        <a href="../admin/" <?php if (!$_GET) : ?> class="d-none" <?php endif ?>><button class="btn btn-primary mt-3">Voltar ao menu</button></a>
+        <?php if ($_GET) : ?>
+            <br>
+            <a href="../admin/"><button class="btn btn-primary">Voltar ao menu</button></a>
+        <?php endif ?>
+
+        <!-- pagination -->
+        <?php if (isset($_GET['vagas'])) : ?>
+            <div id="pagination" class="d-inline-block mt-3">
+                <div class="container">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <?php if ($page != 1) : ?>
+                                <li class="page-item"><a href="?vagas=<?php echo $vagasValue ?>&page=<?php echo $page - 1 ?>" class="page-link">Previous</a></li>
+                            <?php endif ?>
+
+                            <?php for ($i = 1; $i <= $totalPages; $i++) : ?>
+                                <li class="<?php if ($page == $i) : ?>disabled<?php endif ?> page-item"><a href="?vagas=<?php echo $vagasValue ?>&page=<?php echo $i ?>" class="page-link"><?php echo $i ?></a></li>
+                            <?php endfor ?>
+
+                            <?php if ($page < $totalPages) : ?>
+                                <li class="page-item"><a href="?vagas=<?php echo $vagasValue ?>&page=<?php echo $page + 1 ?>" class="page-link" disabled>Next</a></li>
+                            <?php endif ?>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        <?php endif ?>
     </div>
 </body>
 

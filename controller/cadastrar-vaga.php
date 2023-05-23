@@ -1,6 +1,6 @@
 <?php
 
-require_once '../models/Vaga.php';
+require '../models/Vaga.php';
 
 if (isset($_SERVER['HTTP_REFERER'])) {
     $referringFile = $_SERVER['HTTP_REFERER'];
@@ -18,10 +18,26 @@ if ($lastDir == 'cadastrar-vaga.html') {
     $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
     $contato = filter_input(INPUT_POST, 'contato', FILTER_SANITIZE_STRING);
 
-    $novaVaga = $obj->add('vagas_pendentes', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
+    $obj->add('vagas_pendentes', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
 
     session_start();
-    $_SESSION['message'] = "<div class='alert alert-success'>Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te retornaremos por e-mail assim que ela for aprovada e publicada.</div>";
+
+    // enviando email de confirmação
+    if (preg_match('/^[a-z0-9]+@[a-z]+\.[a-z]{2,5}$/', $obj->getContato())) {
+        require '../config/email.php';
+
+        $mail->addAddress($obj->getContato());
+        $mail->isHTML(true);
+
+        $mail->Subject = 'Vaga enviada com sucesso!';
+        $mail->Body = 'Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te retornaremos aqui por e-mail assim que ela for aprovada e publicada.';
+        $mail->send();
+
+
+        $_SESSION['message'] = "<div class='alert alert-success'>Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te retornaremos por e-mail assim que ela for aprovada e publicada.</div>";
+    } else {
+        $_SESSION['message'] = "<div class='alert alert-success'>Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te enviaremos um SMS assim que estiver tudo pronto.</div>";
+    }
 
     header(("Location: ../"));
 }
@@ -37,8 +53,20 @@ if ($lastDir == 'admin/?vagas=pendentes') {
     $estado = $vagaPendente['estado'];
     $contato = $vagaPendente['contato'];
 
-    $novaVaga = $obj->add('vagas', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
+    $obj->add('vagas', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
     $obj->delete('vagas_pendentes', $id);
+
+    // enviando email de confirmação
+    if (preg_match('/^[a-z0-9]+@[a-z]+\.[a-z]{2,5}$/', $vagaPendente['contato'])) {
+        require '../config/email.php';
+
+        $mail->addAddress($vagaPendente['contato']);
+        $mail->isHTML(true);
+
+        $mail->Subject = 'Vaga publicada!';
+        $mail->Body = 'Muito obrigado por utilizar o Bauru Empregos, temos boas notícias para você! Sua vaga foi revisada e publicada com sucesso e já está disponível no Bauru Empregos. Esperamos que tenha uma boa experiência em nossa plataforma e que logo possa encontrar o colaborador que tanto procura.';
+        $mail->send();
+    }
 
     session_start();
     $_SESSION['admin-message'] = "<div class='text-success'>Vaga $id - \"$cargo\" publicada com sucesso!</div>";

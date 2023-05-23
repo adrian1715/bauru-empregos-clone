@@ -2,7 +2,7 @@
 
 require_once 'config/config.php';
 
-$stmt = $pdo->prepare("SELECT id, cargo, descricao, empresa, contato, cidade, date_format(data, '%d/%m/%Y') as data FROM vagas ORDER BY data DESC LIMIT 10");
+$stmt = $pdo->prepare("SELECT id, cargo, descricao, empresa, contato, cidade, date_format(data, '%d/%m/%Y') as data FROM vagas ORDER BY data DESC, id DESC LIMIT 10");
 $stmt->execute();
 $vagas = $stmt->fetchAll();
 
