@@ -11,35 +11,40 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 $obj = new Vaga();
 
 if ($lastDir == 'cadastrar-vaga.html') {
-    $cargo = filter_input(INPUT_POST, 'cargo', FILTER_SANITIZE_STRING);
-    $empresa = filter_input(INPUT_POST, 'empresa', FILTER_SANITIZE_STRING);
-    $descricao = filter_input(INPUT_POST, 'descricao', FILTER_SANITIZE_STRING);
-    $cidade = filter_input(INPUT_POST, 'cidade', FILTER_SANITIZE_STRING);
-    $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
-    $contato = filter_input(INPUT_POST, 'contato', FILTER_SANITIZE_STRING);
-
-    $obj->add('vagas_pendentes', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
-
     session_start();
 
-    // enviando email de confirmação
-    if (preg_match('/^[a-z0-9]+@[a-z]+\.[a-z]{2,5}$/', $obj->getContato())) {
-        require '../config/email.php';
+    try {
+        $cargo = filter_input(INPUT_POST, 'cargo', FILTER_SANITIZE_STRING);
+        $empresa = filter_input(INPUT_POST, 'empresa', FILTER_SANITIZE_STRING);
+        $descricao = filter_input(INPUT_POST, 'descricao', FILTER_SANITIZE_STRING);
+        $cidade = filter_input(INPUT_POST, 'cidade', FILTER_SANITIZE_STRING);
+        $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
+        $contato = filter_input(INPUT_POST, 'contato', FILTER_SANITIZE_STRING);
 
-        $mail->addAddress($obj->getContato());
-        $mail->isHTML(true);
+        $obj->add('vagas_pendentes', $cargo, $empresa, $descricao, $cidade, $estado, $contato);
 
-        $mail->Subject = 'Vaga enviada com sucesso!';
-        $mail->Body = 'Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te retornaremos aqui por e-mail assim que ela for aprovada e publicada.';
-        $mail->send();
+        // enviando email de confirmação
+        if (preg_match('/^[a-z0-9]+@[a-z]+\.[a-z]{2,5}$/', $obj->getContato())) {
+            require '../config/email.php';
+
+            $mail->addAddress($obj->getContato());
+            $mail->isHTML(true);
+
+            $mail->Subject = 'Vaga enviada com sucesso!';
+            $mail->Body = 'Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te retornaremos aqui por e-mail assim que ela for aprovada e publicada.';
+            $mail->send();
 
 
-        $_SESSION['message'] = "<div class='alert alert-success'>Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te retornaremos por e-mail assim que ela for aprovada e publicada.</div>";
-    } else {
-        $_SESSION['message'] = "<div class='alert alert-success'>Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te enviaremos um SMS assim que estiver tudo pronto.</div>";
+            $_SESSION['message'] = "<div class='alert alert-success'>Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te retornaremos por e-mail assim que ela for aprovada e publicada.</div>";
+        } else {
+            $_SESSION['message'] = "<div class='alert alert-success'>Muito obrigado por utilizar o Bauru Empregos! Sua vaga já foi enviada e está em revisão. Não se preocupe, te enviaremos um SMS assim que estiver tudo pronto.</div>";
+        }
+
+        header(("Location: ../"));
+    } catch (Exception $err) {
+        $_SESSION['message'] = "<div class='alert alert-danger'>Contato inválido!</div>";
+        header("Location: ../");
     }
-
-    header(("Location: ../"));
 }
 
 if ($lastDir == 'admin/?vagas=pendentes') {
