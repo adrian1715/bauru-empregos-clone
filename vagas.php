@@ -80,7 +80,7 @@ $previousPage = $page - 1;
             <nav aria-label="Page navigation">
                 <ul class="pagination">
                     <?php if ($page != 1) : ?>
-                        <li class="page-item"><a href="?page=<?php echo $page - 1 ?>" class="page-link">Previous</a></li>
+                        <li class="page-item"><a href="?page=<?php echo $page - 1 ?>" class="page-link">Anterior</a></li>
                     <?php endif ?>
 
                     <?php for ($i = 1; $i <= $totalPages; $i++) : ?>
@@ -88,7 +88,7 @@ $previousPage = $page - 1;
                     <?php endfor ?>
 
                     <?php if ($page < $totalPages) : ?>
-                        <li class="page-item"><a href="?page=<?php echo $page + 1 ?>" class="page-link" disabled>Next</a></li>
+                        <li class="page-item"><a href="?page=<?php echo $page + 1 ?>" class="page-link" disabled>Próxima</a></li>
                     <?php endif ?>
                 </ul>
             </nav>
