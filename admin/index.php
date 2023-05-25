@@ -55,7 +55,7 @@ session_start();
 </head>
 
 <body class="bg-secondary">
-    <div class="container mt-5 border rounded px-4 py-3 bg-light">
+    <div class="container mt-5 border rounded px-4 pt-3 pb-4 bg-light">
         <h1>Admin Panel</h1>
         <?php
         if (isset($_SESSION['admin-message'])) {
@@ -175,12 +175,13 @@ session_start();
                     <label for="" class="form-label col-2 ps-4 me-2">Contato</label>
                     <input type="text" class="form-control" name="novo-contato" value="<?php echo $vaga['contato'] ?>">
                 </div>
-                <button type="submit" class="btn btn-success float-end mt-3">Confirmar alterações</button>
+                <br>
+                <button type="submit" class="btn btn-success float-end">Confirmar alterações</button>
             </form>
-            <a href="?vagas=cadastradas"><button class="btn btn-dark mt-3">Voltar</button></a>
+            <a href="?vagas=cadastradas"><button class="btn btn-dark">Voltar</button></a>
         <?php endif ?>
         <?php if ($_GET) : ?>
-            <br>
+            <br <?php if (isset($_GET['edit-id'])) echo "class='d-none'" ?>>
             <a href="../admin/"><button class="btn btn-primary">Voltar ao menu</button></a>
         <?php endif ?>
 
@@ -189,7 +190,7 @@ session_start();
             <div id="pagination" class="d-inline-block mt-3">
                 <div class="container">
                     <nav aria-label="Page navigation">
-                        <ul class="pagination">
+                        <ul class="pagination m-0">
                             <?php if ($page != 1) : ?>
                                 <li class="page-item"><a href="?vagas=<?php echo $vagasValue ?>&page=<?php echo $page - 1 ?>" class="page-link">Previous</a></li>
                             <?php endif ?>
